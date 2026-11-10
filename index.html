@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All the things I like! — Interactive Module 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Comic Sans MS', 'Arial', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2d3436;
+  }
+  h1 {
+    text-align: center;
+    font-size: 42px;
+    color: #d63031;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+  h2 {
+    text-align: center;
+    font-size: 32px;
+    color: #0984e3;
+    margin-bottom: 20px;
+  }
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tile {
+    background: #fff;
+    border: 4px solid #0984e3;
+    border-radius: 20px;
+    padding: 20px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 6px 0 #0652a8;
+  }
+  .tile:hover:not(.done) {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 0 #0652a8;
+    background: #dfe6e9;
+  }
+  .tile.done {
+    background: #b2bec3;
+    border-color: #636e72;
+    box-shadow: 0 6px 0 #2d3436;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .tile .num {
+    font-size: 36px;
+    font-weight: bold;
+    color: #d63031;
+  }
+  .tile .title {
+    font-size: 22px;
+    margin-top: 10px;
+    color: #2d3436;
+  }
+  .screen {
+    display: none;
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 600px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .screen.active { display: block; }
+  .btn {
+    background: #00b894;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 22px;
+    cursor: pointer;
+    margin: 10px;
+    box-shadow: 0 4px 0 #008a6f;
+    font-family: inherit;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.back { background: #fdcb6e; box-shadow: 0 4px 0 #c99a2e; color: #2d3436; }
+  .btn.next { background: #0984e3; box-shadow: 0 4px 0 #0652a8; }
+  .btn.check { background: #e17055; box-shadow: 0 4px 0 #b8532f; }
+  .buttons { text-align: center; margin-top: 20px; }
+
+  /* Task 1 */
+  .baskets {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .basket {
+    width: 220px;
+    min-height: 200px;
+    border: 4px dashed #6c5ce7;
+    border-radius: 16px;
+    padding: 10px;
+    background: #f8f9fa;
+    text-align: center;
+  }
+  .basket h3 { font-size: 22px; color: #6c5ce7; margin-bottom: 10px; }
+  .basket .items { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .card {
+    background: #ffeaa7;
+    border: 3px solid #fdcb6e;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .card:hover { background: #fab1a0; }
+  .card.active { background: #ff7675; color: #fff; border-color: #d63031; }
+  .card.correct { background: #55efc4; border-color: #00b894; }
+  .card.wrong { background: #ff7675; border-color: #d63031; color: #fff; }
+  .card.in-basket { background: #74b9ff; border-color: #0984e3; color: #fff; }
+
+  /* Task 2, 6 — rules */
+  .rule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 24px;
+    margin: 20px 0;
+  }
+  .rule-table th, .rule-table td {
+    border: 3px solid #0984e3;
+    padding: 14px;
+    text-align: center;
+  }
+  .rule-table th { background: #74b9ff; color: #fff; font-size: 26px; }
+  .like { color: #00b894; font-weight: bold; font-size: 28px; }
+  .dontlike { color: #d63031; font-weight: bold; font-size: 28px; }
+  .some { color: #00b894; font-weight: bold; font-size: 28px; }
+  .any { color: #d63031; font-weight: bold; font-size: 28px; }
+
+  /* Task 3 */
+  .sentence-builder {
+    background: #f8f9fa;
+    border: 3px solid #0984e3;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .word {
+    background: #ffeaa7;
+    border: 3px solid #fdcb6e;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .word:hover { background: #fab1a0; }
+  .word.used { opacity: 0.3; cursor: not-allowed; }
+  .build-line {
+    min-height: 70px;
+    background: #fff;
+    border: 3px dashed #6c5ce7;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .build-word {
+    background: #74b9ff;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .build-word.correct { background: #55efc4; }
+  .build-word.wrong { background: #ff7675; }
+  .progress { text-align: center; font-size: 24px; color: #6c5ce7; margin: 10px 0; }
+
+  /* Task 4 */
+  .survey-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 22px;
+  }
+  .survey-table th, .survey-table td {
+    border: 3px solid #0984e3;
+    padding: 12px;
+    text-align: center;
+  }
+  .survey-table th { background: #74b9ff; color: #fff; font-size: 24px; }
+  .survey-table input {
+    font-size: 22px;
+    padding: 6px;
+    width: 90%;
+    border: 2px solid #74b9ff;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .choice-btn {
+    padding: 12px 18px;
+    margin: 5px;
+    border: 3px solid #0984e3;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: bold;
+    min-width: 120px;
+    transition: all 0.2s;
+  }
+  .choice-btn:hover { background: #dfe6e9; }
+  .choice-btn.selected { background: #00b894; color: #fff; border-color: #008a6f; transform: scale(1.05); }
+
+  /* Task 5 — крупный формат в два столбика */
+  .matching {
+    display: flex;
+    justify-content: space-around;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .match-col {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
+    min-width: 300px;
+  }
+  .match-col h3 {
+    text-align: center;
+    font-size: 28px;
+    color: #0984e3;
+    margin-bottom: 10px;
+  }
+  .match-item {
+    background: #ffeaa7;
+    border: 4px solid #fdcb6e;
+    border-radius: 16px;
+    padding: 20px;
+    font-size: 80px;
+    cursor: pointer;
+    text-align: center;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .match-item.word-item {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2d3436;
+  }
+  .match-item:hover { background: #fab1a0; transform: scale(1.03); }
+  .match-item.active { background: #ff7675; color: #fff; border-color: #d63031; }
+  .match-item.paired { background: #55efc4; border-color: #00b894; opacity: 0.7; }
+  .match-item.wrong { background: #ff7675; border-color: #d63031; color: #fff; }
+
+  /* Task 7, 11 */
+  .fill-sentence {
+    background: #f8f9fa;
+    border: 3px solid #0984e3;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    font-size: 26px;
+    text-align: center;
+  }
+  .blank {
+    display: inline-block;
+    min-width: 120px;
+    border-bottom: 4px solid #6c5ce7;
+    padding: 4px 10px;
+    margin: 0 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .blank.filled { background: #ffeaa7; border-radius: 8px; border-bottom: none; }
+  .blank.correct { background: #55efc4; }
+  .blank.wrong { background: #ff7675; color: #fff; }
+  .blank-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .blank-opt {
+    padding: 12px 28px;
+    font-size: 26px;
+    border: 3px solid #6c5ce7;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .blank-opt:hover { background: #dfe6e9; }
+
+  /* Task 8 */
+  .fridge {
+    width: 500px;
+    height: 500px;
+    background: #dfe6e9;
+    border: 6px solid #636e72;
+    border-radius: 16px;
+    margin: 20px auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .fridge-door {
+    flex: 1;
+    border-bottom: 4px solid #636e72;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 28px;
+    font-weight: bold;
+    color: #636e72;
+    background: #fff;
+    transition: background 0.2s;
+  }
+  .fridge-door:hover { background: #74b9ff; color: #fff; }
+  .fridge-door.open { background: #ffeaa7; color: #d63031; }
+  .fridge-door:last-child { border-bottom: none; }
+  .door-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+  }
+  .food-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 28px;
+  }
+  .fridge-question {
+    text-align: center;
+    font-size: 28px;
+    color: #d63031;
+    margin: 10px 0;
+  }
+
+  /* Task 9 */
+  .reading-screen {
+    display: flex;
+    gap: 20px;
+  }
+  .reading-text, .shopping-list {
+    flex: 1;
+    border: 3px solid #0984e3;
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 400px;
+    font-size: 22px;
+    line-height: 1.6;
+  }
+  .shopping-list h3 { color: #d63031; font-size: 26px; margin-bottom: 10px; text-align: center; }
+  .reading-text p { font-size: 22px; }
+  .clickable-word {
+    background: #ffeaa7;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .clickable-word.active { background: #ff7675; color: #fff; }
+  .clickable-word.moved { opacity: 0.4; text-decoration: line-through; }
+  .list-word {
+    background: #55efc4;
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin: 4px;
+    display: inline-block;
+    cursor: move;
+    font-size: 22px;
+  }
+
+  /* Task 10 */
+  .pair-sentences {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px auto;
+    max-width: 800px;
+  }
+  .sentence-opt {
+    background: #f8f9fa;
+    border: 3px solid #0984e3;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 26px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .sentence-opt:hover { background: #dfe6e9; }
+  .sentence-opt.selected { background: #74b9ff; color: #fff; }
+  .sentence-opt.correct { background: #55efc4; border-color: #00b894; }
+  .sentence-opt.wrong { background: #ff7675; border-color: #d63031; color: #fff; }
+
+  /* Task 12 */
+  .who-screen {
+    display: flex;
+    gap: 20px;
+  }
+  .names-col, .sentences-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .name-tile {
+    background: #ffeaa7;
+    border: 3px solid #fdcb6e;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 26px;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 10px;
+  }
+  .name-tile .name-text { font-weight: bold; }
+  .name-tile .food-icons { font-size: 40px; }
+  .name-tile.active { background: #74b9ff; color: #fff; border-color: #0984e3; }
+  .name-tile.paired { background: #55efc4; border-color: #00b894; }
+  .name-tile.wrong { background: #ff7675; color: #fff; border-color: #d63031; }
+  .sentence-tile {
+    background: #f8f9fa;
+    border: 3px solid #6c5ce7;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .sentence-tile.active { background: #ff7675; color: #fff; border-color: #d63031; }
+  .sentence-tile.paired { background: #55efc4; border-color: #00b894; }
+  .sentence-tile.wrong { background: #ff7675; color: #fff; border-color: #d63031; }
+
+  /* Fireworks */
+  .fireworks {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .fireworks.active { display: flex; }
+  .fireworks h1 {
+    color: #ffeaa7;
+    font-size: 72px;
+    text-shadow: 4px 4px 0 #d63031;
+    animation: pop 1s ease infinite;
+  }
+  @keyframes pop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .confetti {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    animation: fall 3s linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-100vh) rotate(0); }
+    100% { transform: translateY(100vh) rotate(720deg); }
+  }
+  .counter {
+    text-align: center;
+    font-size: 24px;
+    color: #d63031;
+    margin: 10px 0;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h1>🍎 All the things I like! 🍕</h1>
+<div class="counter">Выполнено заданий: <span id="doneCount">0</span> / 12</div>
+
+<div class="menu" id="menu">
+  <div class="tile" onclick="openTask(1)"><div class="num">1</div><div class="title">Sort the products</div></div>
+  <div class="tile" onclick="openTask(2)"><div class="num">2</div><div class="title">Remember the rule!</div></div>
+  <div class="tile" onclick="openTask(3)"><div class="num">3</div><div class="title">Make up sentences</div></div>
+  <div class="tile" onclick="openTask(4)"><div class="num">4</div><div class="title">Survey</div></div>
+  <div class="tile" onclick="openTask(5)"><div class="num">5</div><div class="title">What is in the lunch box?</div></div>
+  <div class="tile" onclick="openTask(6)"><div class="num">6</div><div class="title">Remember the rule some/any!</div></div>
+  <div class="tile" onclick="openTask(7)"><div class="num">7</div><div class="title">Fill in the blanks</div></div>
+  <div class="tile" onclick="openTask(8)"><div class="num">8</div><div class="title">What's in your fridge?</div></div>
+  <div class="tile" onclick="openTask(9)"><div class="num">9</div><div class="title">Reading</div></div>
+  <div class="tile" onclick="openTask(10)"><div class="num">10</div><div class="title">Choose the right answer</div></div>
+  <div class="tile" onclick="openTask(11)"><div class="num">11</div><div class="title">Fill in the blanks</div></div>
+  <div class="tile" onclick="openTask(12)"><div class="num">12</div><div class="title">Who says this?</div></div>
+</div>
+
+<!-- TASK 1 -->
+<div class="screen" id="task1">
+  <h2>Task 1. Sort the products</h2>
+  <p style="text-align:center; font-size:22px;">Кликни на продукт, затем на корзинку.</p>
+  <div class="baskets">
+    <div class="basket" onclick="placeInBasket('healthy')"><h3>🥗 Healthy food</h3><div class="items" id="b-healthy"></div></div>
+    <div class="basket" onclick="placeInBasket('drinks')"><h3>🥤 Drinks</h3><div class="items" id="b-drinks"></div></div>
+    <div class="basket" onclick="placeInBasket('junk')"><h3>🍔 Junk food</h3><div class="items" id="b-junk"></div></div>
+    <div class="basket" onclick="placeInBasket('dessert')"><h3>🍰 Dessert</h3><div class="items" id="b-dessert"></div></div>
+  </div>
+  <div class="cards" id="cards1"></div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask1()">Check</button>
+    <button class="btn back" onclick="backToMenu(1)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 2 -->
+<div class="screen" id="task2">
+  <h2>Task 2. Remember the rule!</h2>
+  <table class="rule-table">
+    <tr><th>Кто?</th><th>Утверждение (+)</th><th>Отрицание (-)</th><th>Примеры</th></tr>
+    <tr>
+      <td><b>Я, Мы, Они</b><br>(I, We, They)</td>
+      <td><span class="like">like</span></td>
+      <td><span class="dontlike">don't like</span></td>
+      <td>I <span class="like">like</span> pizza. — Я люблю пиццу.<br>We <span class="dontlike">don't like</span> eggs. — Мы не любим яйца.</td>
+    </tr>
+    <tr>
+      <td><b>Он, Она, Оно</b><br>(He, She, It, имена)</td>
+      <td><span class="like">likes</span><br><small>(добавляем -s!)</small></td>
+      <td><span class="dontlike">doesn't like</span></td>
+      <td>He <span class="like">likes</span> pizza. — Он любит пиццу.<br>She <span class="dontlike">doesn't like</span> eggs. — Она не любит яйца.</td>
+    </tr>
+  </table>
+  <div class="buttons">
+    <button class="btn back" onclick="backToMenu(2)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 3 -->
+<div class="screen" id="task3">
+  <h2>Task 3. Make up sentences</h2>
+  <div class="progress">Предложение <span id="t3cur">1</span> из 10</div>
+  <div class="sentence-builder">
+    <div class="word-bank" id="t3bank"></div>
+    <div class="build-line" id="t3line"></div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask3()">Check</button>
+    <button class="btn next" onclick="nextTask3()">Next</button>
+    <button class="btn back" onclick="backToMenu(3)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 4 -->
+<div class="screen" id="task4">
+  <h2>Task 4. Survey — Do you like...?</h2>
+  <p style="text-align:center; font-size:22px;">Впиши имена одноклассников и выбери <b>likes</b> или <b>doesn't like</b> в каждой ячейке.</p>
+  <table class="survey-table" id="surveyTable">
+    <tr><th>Name</th><th>chicken 🍗</th><th>eggs 🥚</th><th>pizza 🍕</th></tr>
+  </table>
+  <div class="buttons">
+    <button class="btn" onclick="addSurveyRow()">+ Add row</button>
+    <button class="btn back" onclick="backToMenu(4)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 5 -->
+<div class="screen" id="task5">
+  <h2>Task 5. What is in the lunch box?</h2>
+  <p style="text-align:center; font-size:22px;">Кликни на картинку, затем на слово — получишь пару.</p>
+  <div class="matching">
+    <div class="match-col">
+      <h3>🖼️ Pictures</h3>
+      <div id="t5pics"></div>
+    </div>
+    <div class="match-col">
+      <h3>📝 Words</h3>
+      <div id="t5words"></div>
+    </div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask5()">Check</button>
+    <button class="btn back" onclick="backToMenu(5)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 6 -->
+<div class="screen" id="task6">
+  <h2>Task 6. Remember the rule some/any!</h2>
+  <table class="rule-table">
+    <tr><th>Тип предложения</th><th>Какое слово?</th><th>Пример</th><th>Перевод</th></tr>
+    <tr>
+      <td><b>Утверждение (+)</b></td>
+      <td><span class="some">some</span></td>
+      <td>I have got <span class="some">some</span> milk.</td>
+      <td>У меня есть немного молока.</td>
+    </tr>
+    <tr>
+      <td><b>Отрицание (-)</b></td>
+      <td><span class="any">any</span></td>
+      <td>I haven't got <span class="any">any</span> milk.</td>
+      <td>У меня совсем нет молока.</td>
+    </tr>
+    <tr>
+      <td><b>Вопрос (?)</b></td>
+      <td><span class="any">any</span></td>
+      <td>Have you got <span class="any">any</span> milk?</td>
+      <td>У тебя есть молоко?</td>
+    </tr>
+    <tr>
+      <td><b>Вежливая просьба</b></td>
+      <td><span class="some">some</span> <small>(исключение!)</small></td>
+      <td>Can I have <span class="some">some</span> milk, please?</td>
+      <td>Можно мне немного молока, пожалуйста?</td>
+    </tr>
+  </table>
+  <div class="buttons">
+    <button class="btn back" onclick="backToMenu(6)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 7 -->
+<div class="screen" id="task7">
+  <h2>Task 7. Fill in the blanks (some/any)</h2>
+  <div class="progress">Предложение <span id="t7cur">1</span> из 10</div>
+  <div class="fill-sentence" id="t7sentence"></div>
+  <div class="blank-options">
+    <div class="blank-opt" onclick="fillBlank7('some')">some</div>
+    <div class="blank-opt" onclick="fillBlank7('any')">any</div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask7()">Check</button>
+    <button class="btn next" onclick="nextTask7()">Next</button>
+    <button class="btn back" onclick="backToMenu(7)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 8 -->
+<div class="screen" id="task8">
+  <h2>Task 8. What's in your fridge?</h2>
+  <p style="text-align:center; font-size:22px;">Кликни на дверь холодильника. Ответь на вопрос.</p>
+  <div class="fridge-question">Have you got any <span id="t8food">____</span> in the fridge?</div>
+  <div class="fridge" id="fridge"></div>
+  <div class="buttons">
+    <button class="btn back" onclick="backToMenu(8)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 9 -->
+<div class="screen" id="task9">
+  <h2>Task 9. Reading — Shopping list for Karen</h2>
+  <div class="reading-screen">
+    <div class="reading-text" id="t9text">
+      <p><b>Karen,</b></p>
+      <p>We've got some <span class="clickable-word" data-word="eggs" onclick="moveToShopping(this)">eggs</span>, but we haven't got any <span class="clickable-word" data-word="chicken" onclick="moveToShopping(this)">chicken</span>. We've got some <span class="clickable-word" data-word="milk" onclick="moveToShopping(this)">milk</span>, but we haven't got any <span class="clickable-word" data-word="ice cream" onclick="moveToShopping(this)">ice cream</span>. We've got some <span class="clickable-word" data-word="carrots" onclick="moveToShopping(this)">carrots</span> and <span class="clickable-word" data-word="potatoes" onclick="moveToShopping(this)">potatoes</span>, but we need some <span class="clickable-word" data-word="apples" onclick="moveToShopping(this)">apples</span> and some <span class="clickable-word" data-word="bananas" onclick="moveToShopping(this)">bananas</span>.</p>
+      <p><b>David</b></p>
+    </div>
+    <div class="shopping-list">
+      <h3>🛒 Shopping List</h3>
+      <p style="font-size:18px; color:#636e72; text-align:center;">Кликай на слова слева — они появятся здесь</p>
+      <div id="shoppingList"></div>
+    </div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask9()">Check</button>
+    <button class="btn back" onclick="backToMenu(9)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 10 -->
+<div class="screen" id="task10">
+  <h2>Task 10. Choose the right answer</h2>
+  <div class="progress">Пара <span id="t10cur">1</span> из 5</div>
+  <div class="pair-sentences" id="t10pairs"></div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask10()">Check</button>
+    <button class="btn next" onclick="nextTask10()">Next</button>
+    <button class="btn back" onclick="backToMenu(10)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 11 -->
+<div class="screen" id="task11">
+  <h2>Task 11. Fill in the blanks (some/any)</h2>
+  <div class="progress">Предложение <span id="t11cur">1</span> из 5</div>
+  <div class="fill-sentence" id="t11sentence"></div>
+  <div class="blank-options">
+    <div class="blank-opt" onclick="fillBlank11('some')">some</div>
+    <div class="blank-opt" onclick="fillBlank11('any')">any</div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask11()">Check</button>
+    <button class="btn next" onclick="nextTask11()">Next</button>
+    <button class="btn back" onclick="backToMenu(11)">Back</button>
+  </div>
+</div>
+
+<!-- TASK 12 -->
+<div class="screen" id="task12">
+  <h2>Task 12. Who says this?</h2>
+  <p style="text-align:center; font-size:22px;">Кликни на имя, затем на предложение.</p>
+  <div class="who-screen">
+    <div class="names-col" id="t12names"></div>
+    <div class="sentences-col" id="t12sentences"></div>
+  </div>
+  <div class="buttons">
+    <button class="btn check" onclick="checkTask12()">Check</button>
+    <button class="btn back" onclick="backToMenu(12)">Back</button>
+  </div>
+</div>
+
+<!-- FIREWORKS -->
+<div class="fireworks" id="fireworks">
+  <h1>🎉 You did a great job! 🎉</h1>
+  <p style="color:#fff; font-size:32px; margin-top:20px;">Все 12 заданий выполнены!</p>
+  <button class="btn" onclick="document.getElementById('fireworks').classList.remove('active')" style="margin-top:30px;">Close</button>
+</div>
+
+<script>
+// ============ ОБЩИЕ ПЕРЕМЕННЫЕ ============
+const done = new Set();
+function updateCounter() {
+  document.getElementById('doneCount').textContent = done.size;
+}
+function markDone(n) {
+  done.add(n);
+  document.querySelectorAll('.tile')[n-1].classList.add('done');
+  updateCounter();
+  if (done.size === 12) showFireworks();
+}
+
+function openTask(n) {
+  if (done.has(n)) return;
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('task'+n).classList.add('active');
+  if (n===1) initTask1();
+  if (n===3) initTask3();
+  if (n===4) initTask4();
+  if (n===5) initTask5();
+  if (n===7) initTask7();
+  if (n===8) initTask8();
+  if (n===10) initTask10();
+  if (n===11) initTask11();
+  if (n===12) initTask12();
+}
+function backToMenu(n) {
+  document.getElementById('task'+n).classList.remove('active');
+  document.getElementById('menu').style.display = 'grid';
+  markDone(n);
+}
+
+// ============ TASK 1 ============
+const products = [
+  {name:'chicken', cat:'healthy'}, {name:'water', cat:'drinks'},
+  {name:'chips', cat:'junk'}, {name:'ice cream', cat:'dessert'},
+  {name:'vegetables', cat:'healthy'}, {name:'milk', cat:'drinks'},
+  {name:'burgers', cat:'junk'}, {name:'chocolate', cat:'dessert'},
+  {name:'apples', cat:'healthy'}, {name:'orange juice', cat:'drinks'},
+  {name:'pizza', cat:'junk'}, {name:'jelly', cat:'dessert'}
+];
+let activeCard = null;
+let cardPlacement = {};
+
+function initTask1() {
+  const cards = document.getElementById('cards1');
+  cards.innerHTML = '';
+  cardPlacement = {};
+  const shuffled = [...products].sort(()=>Math.random()-0.5);
+  shuffled.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.textContent = p.name;
+    d.dataset.name = p.name;
+    d.dataset.cat = p.cat;
+    d.onclick = () => {
+      document.querySelectorAll('#cards1 .card').forEach(c=>c.classList.remove('active'));
+      d.classList.add('active');
+      activeCard = d;
+    };
+    cards.appendChild(d);
+  });
+  ['healthy','drinks','junk','dessert'].forEach(c=>{
+    document.getElementById('b-'+c).innerHTML = '';
+  });
+}
+function placeInBasket(cat) {
+  if (!activeCard) return;
+  const basket = document.getElementById('b-'+cat);
+  basket.appendChild(activeCard);
+  activeCard.classList.remove('active');
+  activeCard.classList.add('in-basket');
+  cardPlacement[activeCard.dataset.name] = cat;
+  activeCard = null;
+}
+function checkTask1() {
+  products.forEach(p => {
+    const card = document.querySelector(`.card[data-name="${p.name}"]`);
+    if (cardPlacement[p.name] === p.cat) {
+      card.classList.remove('in-basket');
+      card.classList.add('correct');
+    } else if (cardPlacement[p.name]) {
+      card.classList.remove('in-basket');
+      card.classList.add('wrong');
+    } else {
+      card.classList.add('wrong');
+    }
+  });
+}
+
+// ============ TASK 3 ============
+const sentences3 = [
+  {words:['I','like','likes','chicken'], correct:'I like chicken'},
+  {words:['She','like','likes','pizza'], correct:'She likes pizza'},
+  {words:['We','don\'t','doesn\'t','like','burgers'], correct:'We don\'t like burgers'},
+  {words:['He','don\'t','doesn\'t','like','eggs'], correct:'He doesn\'t like eggs'},
+  {words:['They','like','likes','vegetables'], correct:'They like vegetables'},
+  {words:['My friend','like','likes','jelly'], correct:'My friend likes jelly'},
+  {words:['I','don\'t','doesn\'t','like','chips'], correct:'I don\'t like chips'},
+  {words:['Anna','like','likes','ice cream'], correct:'Anna likes ice cream'},
+  {words:['We','like','likes','milk'], correct:'We like milk'},
+  {words:['He','don\'t','doesn\'t','like','chocolate'], correct:'He doesn\'t like chocolate'}
+];
+let t3idx = 0;
+let t3built = [];
+
+function initTask3() {
+  t3idx = 0;
+  renderTask3();
+}
+function renderTask3() {
+  document.getElementById('t3cur').textContent = t3idx+1;
+  const bank = document.getElementById('t3bank');
+  const line = document.getElementById('t3line');
+  bank.innerHTML = '';
+  line.innerHTML = '';
+  t3built = [];
+  const s = sentences3[t3idx];
+  const shuffled = [...s.words].sort(()=>Math.random()-0.5);
+  shuffled.forEach((w,i) => {
+    const d = document.createElement('div');
+    d.className = 'word';
+    d.textContent = w;
+    d.onclick = () => {
+      if (d.classList.contains('used')) return;
+      d.classList.add('used');
+      t3built.push(w);
+      const bw = document.createElement('div');
+      bw.className = 'build-word';
+      bw.textContent = w;
+      bw.onclick = () => {
+        t3built = t3built.filter((x,idx)=>idx!==t3built.indexOf(w));
+        bw.remove();
+        d.classList.remove('used');
+      };
+      line.appendChild(bw);
+    };
+    bank.appendChild(d);
+  });
+}
+function checkTask3() {
+  const line = document.getElementById('t3line');
+  const built = t3built.join(' ');
+  const correct = sentences3[t3idx].correct;
+  line.querySelectorAll('.build-word').forEach(w => {
+    w.classList.add(built === correct ? 'correct' : 'wrong');
+  });
+}
+function nextTask3() {
+  t3idx++;
+  if (t3idx >= sentences3.length) {
+    backToMenu(3);
+  } else {
+    renderTask3();
+  }
+}
+
+// ============ TASK 4 ============
+let surveyRowCount = 0;
+function initTask4() {
+  const table = document.getElementById('surveyTable');
+  table.innerHTML = '<tr><th>Name</th><th>chicken 🍗</th><th>eggs 🥚</th><th>pizza 🍕</th></tr>';
+  surveyRowCount = 0;
+  for (let i=0; i<12; i++) addSurveyRow();
+}
+function addSurveyRow() {
+  surveyRowCount++;
+  const table = document.getElementById('surveyTable');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Name ${surveyRowCount}"></td>
+    <td>
+      <button class="choice-btn" onclick="selectChoice(this,'likes')">likes 👍</button>
+      <button class="choice-btn" onclick="selectChoice(this,'doesn\\'t like')">doesn't like 👎</button>
+    </td>
+    <td>
+      <button class="choice-btn" onclick="selectChoice(this,'likes')">likes 👍</button>
+      <button class="choice-btn" onclick="selectChoice(this,'doesn\\'t like')">doesn't like 👎</button>
+    </td>
+    <td>
+      <button class="choice-btn" onclick="selectChoice(this,'likes')">likes 👍</button>
+      <button class="choice-btn" onclick="selectChoice(this,'doesn\\'t like')">doesn't like 👎</button>
+    </td>
+  `;
+  table.appendChild(tr);
+}
+function selectChoice(btn, val) {
+  btn.parentElement.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ============ TASK 5 ============
+const lunchItems = [
+  {pic:'🍪', word:'biscuits'}, {pic:'🧃', word:'juice'},
+  {pic:'🥩', word:'meat'}, {pic:'🥔', word:'potatoes'},
+  {pic:'🥛', word:'milk'}, {pic:'🍰', word:'cake'},
+  {pic:'🍊', word:'orange juice'}, {pic:'🍝', word:'pasta'},
+  {pic:'🥕', word:'carrots'}, {pic:'🌭', word:'sausages'}
+];
+let t5activePic = null;
+let t5pairs = {};
+
+function initTask5() {
+  const pics = document.getElementById('t5pics');
+  const words = document.getElementById('t5words');
+  pics.innerHTML = '';
+  words.innerHTML = '';
+  t5pairs = {};
+  const shuffledPics = [...lunchItems].sort(()=>Math.random()-0.5);
+  const shuffledWords = [...lunchItems].sort(()=>Math.random()-0.5);
+  shuffledPics.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'match-item';
+    d.textContent = item.pic;
+    d.dataset.word = item.word;
+    d.onclick = () => {
+      pics.querySelectorAll('.match-item').forEach(x=>x.classList.remove('active'));
+      d.classList.add('active');
+      t5activePic = d;
+    };
+    pics.appendChild(d);
+  });
+  shuffledWords.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'match-item word-item';
+    d.textContent = item.word;
+    d.dataset.word = item.word;
+    d.onclick = () => {
+      if (!t5activePic) return;
+      if (t5activePic.dataset.word === item.word) {
+        t5activePic.classList.remove('active');
+        t5activePic.classList.add('paired');
+        d.classList.add('paired');
+        t5pairs[item.word] = true;
+        t5activePic = null;
+      } else {
+        d.classList.add('wrong');
+        setTimeout(()=>d.classList.remove('wrong'), 800);
+      }
+    };
+    words.appendChild(d);
+  });
+}
+function checkTask5() {
+  document.querySelectorAll('#t5pics .match-item').forEach(p => {
+    if (!p.classList.contains('paired')) p.classList.add('wrong');
+  });
+  document.querySelectorAll('#t5words .match-item').forEach(w => {
+    if (!w.classList.contains('paired')) w.classList.add('wrong');
+  });
+}
+
+// ============ TASK 7 ============
+const sentences7 = [
+  {text:'I\'ve got ___ biscuits in my lunch box.', ans:'some'},
+  {text:'Have you got ___ orange juice?', ans:'any'},
+  {text:'We haven\'t got ___ popcorn.', ans:'any'},
+  {text:'Can I have ___ meat, please?', ans:'some'},
+  {text:'She has got ___ carrots and potatoes.', ans:'some'},
+  {text:'They haven\'t got ___ cake.', ans:'any'},
+  {text:'Have they got ___ pasta?', ans:'any'},
+  {text:'He\'s got ___ rice.', ans:'some'},
+  {text:'I haven\'t got ___ sausages.', ans:'any'},
+  {text:'Can we have ___ juice, please?', ans:'some'}
+];
+let t7idx = 0;
+let t7answer = '';
+
+function initTask7() {
+  t7idx = 0;
+  renderTask7();
+}
+function renderTask7() {
+  document.getElementById('t7cur').textContent = t7idx+1;
+  const s = sentences7[t7idx];
+  document.getElementById('t7sentence').innerHTML = s.text.replace('___', '<span class="blank" id="t7blank">___</span>');
+  t7answer = '';
+}
+function fillBlank7(val) {
+  t7answer = val;
+  const b = document.getElementById('t7blank');
+  b.textContent = val;
+  b.classList.add('filled');
+  b.classList.remove('correct','wrong');
+}
+function checkTask7() {
+  const b = document.getElementById('t7blank');
+  b.classList.add(t7answer === sentences7[t7idx].ans ? 'correct' : 'wrong');
+}
+function nextTask7() {
+  t7idx++;
+  if (t7idx >= sentences7.length) backToMenu(7);
+  else renderTask7();
+}
+
+// ============ TASK 8 ============
+const fridgeData = [
+  [{name:'milk', has:true}, {name:'pasta', has:true}, {name:'sausages', has:false}],
+  [{name:'biscuits', has:true}, {name:'orange juice', has:false}, {name:'cake', has:true}],
+  [{name:'meat', has:false}, {name:'potatoes', has:true}, {name:'carrots', has:true}],
+  [{name:'rice', has:true}, {name:'popcorn', has:false}, {name:'juice', has:true}],
+  [{name:'cake', has:true}, {name:'carrots', has:false}, {name:'lemonade', has:true}]
+];
+
+function initTask8() {
+  const fridge = document.getElementById('fridge');
+  fridge.innerHTML = '';
+  fridgeData.forEach((door, i) => {
+    const d = document.createElement('div');
+    d.className = 'fridge-door';
+    d.textContent = 'Door ' + (i+1);
+    d.onclick = () => openFridgeDoor(d, i);
+    fridge.appendChild(d);
+  });
+}
+function openFridgeDoor(el, i) {
+  document.querySelectorAll('.fridge-door').forEach(d => {
+    d.classList.remove('open');
+    d.innerHTML = 'Door ' + (Array.from(document.querySelectorAll('.fridge-door')).indexOf(d)+1);
+  });
+  el.classList.add('open');
+  let html = '<div class="door-content">';
+  fridgeData[i].forEach(f => {
+    const mark = f.has ? '✅' : '❌';
+    html += `<div class="food-row">${mark} ${f.name}</div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+  document.getElementById('t8food').textContent = fridgeData[i].map(f=>f.name).join(' / ');
+}
+
+// ============ TASK 9 ============
+const shoppingCorrect = ['chicken','ice cream','apples','bananas'];
+let shoppingList = [];
+
+function moveToShopping(el) {
+  if (el.classList.contains('moved')) return;
+  const word = el.dataset.word;
+  shoppingList.push(word);
+  el.classList.add('moved');
+  const list = document.getElementById('shoppingList');
+  const w = document.createElement('div');
+  w.className = 'list-word';
+  w.textContent = word;
+  w.onclick = () => {
+    shoppingList = shoppingList.filter(x=>x!==word);
+    w.remove();
+    el.classList.remove('moved');
+  };
+  list.appendChild(w);
+}
+function checkTask9() {
+  const listWords = document.querySelectorAll('.list-word');
+  listWords.forEach(w => {
+    if (shoppingCorrect.includes(w.textContent)) w.style.background = '#55efc4';
+    else w.style.background = '#ff7675';
+  });
+}
+
+// ============ TASK 10 ============
+const pairs10 = [
+  {a:"We doesn't like milk.", b:"We don't like milk.", correct:'b'},
+  {a:"Does Sue likes potatoes?", b:"Does Sue like potatoes?", correct:'b'},
+  {a:"I like chips.", b:"I likes chips.", correct:'a'},
+  {a:"Peter, does you like rice?", b:"Peter, do you like rice?", correct:'b'},
+  {a:"She don't like eggs.", b:"She doesn't like eggs.", correct:'b'}
+];
+let t10idx = 0;
+let t10selected = '';
+
+function initTask10() {
+  t10idx = 0;
+  renderTask10();
+}
+function renderTask10() {
+  document.getElementById('t10cur').textContent = t10idx+1;
+  const cont = document.getElementById('t10pairs');
+  cont.innerHTML = '';
+  const p = pairs10[t10idx];
+  ['a','b'].forEach(k => {
+    const d = document.createElement('div');
+    d.className = 'sentence-opt';
+    d.textContent = k.toUpperCase() + ') ' + p[k];
+    d.onclick = () => {
+      cont.querySelectorAll('.sentence-opt').forEach(x=>x.classList.remove('selected'));
+      d.classList.add('selected');
+      t10selected = k;
+    };
+    cont.appendChild(d);
+  });
+  t10selected = '';
+}
+function checkTask10() {
+  const cont = document.getElementById('t10pairs');
+  cont.querySelectorAll('.sentence-opt').forEach((el, i) => {
+    const k = i===0?'a':'b';
+    if (k === pairs10[t10idx].correct) el.classList.add('correct');
+    else if (k === t10selected) el.classList.add('wrong');
+  });
+}
+function nextTask10() {
+  t10idx++;
+  if (t10idx >= pairs10.length) backToMenu(10);
+  else renderTask10();
+}
+
+// ============ TASK 11 ============
+const sentences11 = [
+  {text:'We haven\'t got ___ eggs.', ans:'any'},
+  {text:'Have you got ___ cheese?', ans:'any'},
+  {text:'Can I have ___ meat, please?', ans:'some'},
+  {text:'I haven\'t got ___ cake.', ans:'any'},
+  {text:'We\'ve got ___ burgers.', ans:'some'}
+];
+let t11idx = 0;
+let t11answer = '';
+
+function initTask11() {
+  t11idx = 0;
+  renderTask11();
+}
+function renderTask11() {
+  document.getElementById('t11cur').textContent = t11idx+1;
+  const s = sentences11[t11idx];
+  document.getElementById('t11sentence').innerHTML = s.text.replace('___', '<span class="blank" id="t11blank">___</span>');
+  t11answer = '';
+}
+function fillBlank11(val) {
+  t11answer = val;
+  const b = document.getElementById('t11blank');
+  b.textContent = val;
+  b.classList.add('filled');
+  b.classList.remove('correct','wrong');
+}
+function checkTask11() {
+  const b = document.getElementById('t11blank');
+  b.classList.add(t11answer === sentences11[t11idx].ans ? 'correct' : 'wrong');
+}
+function nextTask11() {
+  t11idx++;
+  if (t11idx >= sentences11.length) backToMenu(11);
+  else renderTask11();
+}
+
+// ============ TASK 12 ============
+const names12 = [
+  {name:'Tina', foods:'rice and sausages', icons:'🍚 🌭'},
+  {name:'Wendy', foods:'pasta and vegetables', icons:'🍝 🥕'},
+  {name:'Theo', foods:'meat and potatoes', icons:'🥩 🥔'},
+  {name:'Frank', foods:'chicken and carrots', icons:'🍗 🥕'},
+  {name:'Simon', foods:'pizza and salad', icons:'🍕 🥗'},
+  {name:'Sam', foods:'chicken and potatoes', icons:'🍗 🥔'}
+];
+let t12activeName = null;
+let t12pairs = {};
+
+function initTask12() {
+  const names = document.getElementById('t12names');
+  const sents = document.getElementById('t12sentences');
+  names.innerHTML = '';
+  sents.innerHTML = '';
+  t12pairs = {};
+  const shuffledNames = [...names12].sort(()=>Math.random()-0.5);
+  const shuffledSents = [...names12].sort(()=>Math.random()-0.5);
+  shuffledNames.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'name-tile';
+    d.innerHTML = `<span class="name-text">${n.name}</span><span class="food-icons">${n.icons}</span>`;
+    d.dataset.name = n.name;
+    d.onclick = () => {
+      names.querySelectorAll('.name-tile').forEach(x=>x.classList.remove('active'));
+      d.classList.add('active');
+      t12activeName = d;
+    };
+    names.appendChild(d);
+  });
+  shuffledSents.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sentence-tile';
+    d.textContent = `I like ${s.foods}.`;
+    d.dataset.name = s.name;
+    d.onclick = () => {
+      if (!t12activeName) return;
+      if (t12activeName.dataset.name === s.name) {
+        t12activeName.classList.remove('active');
+        t12activeName.classList.add('paired');
+        d.classList.add('paired');
+        t12pairs[s.name] = true;
+      } else {
+        d.classList.add('wrong');
+        setTimeout(()=>d.classList.remove('wrong'), 800);
+      }
+      t12activeName = null;
+    };
+    sents.appendChild(d);
+  });
+}
+function checkTask12() {
+  document.querySelectorAll('#t12names .name-tile').forEach(n => {
+    if (!n.classList.contains('paired')) n.classList.add('wrong');
+  });
+  document.querySelectorAll('#t12sentences .sentence-tile').forEach(s => {
+    if (!s.classList.contains('paired')) s.classList.add('wrong');
+  });
+}
+
+// ============ FIREWORKS ============
+function showFireworks() {
+  const fw = document.getElementById('fireworks');
+  fw.classList.add('active');
+  const colors = ['#ff7675','#ffeaa7','#55efc4','#74b9ff','#a29bfe','#fd79a8'];
+  for (let i=0; i<80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + '%';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay = Math.random()*3 + 's';
+    c.style.animationDuration = (2+Math.random()*2) + 's';
+    fw.appendChild(c);
+  }
+}
+</script>
+</body>
+</html>
